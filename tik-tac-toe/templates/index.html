@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      font-family: "Trebuchet MS", sans-serif;
+      background: url("/static/images/bg.jpeg") no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: brightness(1.2) contrast(1.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* Start Menu */
+    #startMenu {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.8);
+      text-align: center;
+    }
+    #startMenu h1 {
+      font-size: 3em;
+      text-shadow: 0 0 20px cyan;
+    }
+    #startMenu button {
+      padding: 12px 25px;
+      margin-top: 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff0044, #00ffe7);
+      color: white;
+      box-shadow: 0 0 20px #00ffe7;
+      transition: 0.3s;
+    }
+    #startMenu button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px #ff0044;
+    }
+
+    /* Game Container */
+    .game-container {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(255, 0, 100, 0.8);
+      color: white;
+      display: none; /* hidden until start */
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 2.5em;
+      text-shadow: 0 0 15px #ff0044, 0 0 25px #ff0044;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 120px);
+      grid-template-rows: repeat(3, 120px);
+      gap: 8px;
+      margin: 25px auto;
+    }
+
+    .cell {
+      width: 120px;
+      height: 120px;
+      background: rgba(20, 20, 20, 0.85);
+      border: 2px solid #ff0044;
+      border-radius: 10px;
+      font-size: 3em;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cell:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #00ffe7;
+    }
+
+    .cell.X {
+      color: #ff0044;
+      text-shadow: 0 0 10px #ff0044, 0 0 20px #ff0044;
+    }
+
+    .cell.O {
+      color: #00ffe7;
+      text-shadow: 0 0 10px #00ffe7, 0 0 20px #00ffe7;
+    }
+
+    #status {
+      font-size: 1.3em;
+      margin: 15px 0;
+      text-shadow: 0 0 10px cyan;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #ff0044, #00ffe7);
+      color: white;
+      box-shadow: 0 0 15px #ff0044;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 25px #00ffe7;
+    }
+
+    /* Winner Menu */
+    #winnerMenu {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.85);
+      text-align: center;
+    }
+    #winnerMenu h2 {
+      font-size: 2.5em;
+      text-shadow: 0 0 20px gold;
+      margin-bottom: 20px;
+    }
+    #winnerMenu button {
+      padding: 12px 25px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #ff0044, #00ffe7);
+      color: white;
+      box-shadow: 0 0 20px #ff0044;
+    }
+    #winnerMenu button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px #00ffe7;
+    }
+  </style>
+</head>
+<body>
+  <!-- Start Menu -->
+  <div id="startMenu">
+    <h1>🔥 Epic Tic Tac Toe 🔥</h1>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game -->
+  <div class="game-container" id="gameContainer">
+    <h1>Tic Tac Toe</h1>
+    <div id="status">Player X's turn</div>
+    <div class="board" id="board"></div>
+    <button onclick="restartGame(true)">Restart</button>
+  </div>
+
+  <!-- Winner Menu -->
+  <div id="winnerMenu">
+    <h2 id="winnerText"></h2>
+    <button onclick="restartGame(true)">Play Again</button>
+  </div>
+
+  <!-- Background Music -->
+  <audio id="bgMusic" loop>
+    <source src="/static/music/music.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const board = document.getElementById("board");
+    const statusText = document.getElementById("status");
+    const startMenu = document.getElementById("startMenu");
+    const gameContainer = document.getElementById("gameContainer");
+    const winnerMenu = document.getElementById("winnerMenu");
+    const winnerText = document.getElementById("winnerText");
+
+    const bgMusic = document.getElementById("bgMusic");
+
+    let currentPlayer = "X";
+    let gameActive = true;
+    let cells = ["", "", "", "", "", "", "", "", ""];
+
+    const winPatterns = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    function startGame() {
+      startMenu.style.display = "none";
+      gameContainer.style.display = "block";
+      if (bgMusic.paused) bgMusic.play(); // start music if not playing
+    }
+
+    function createBoard() {
+      board.innerHTML = "";
+      cells.forEach((cell, index) => {
+        const cellElement = document.createElement("div");
+        cellElement.classList.add("cell");
+        cellElement.dataset.index = index;
+        cellElement.addEventListener("click", handleClick);
+        board.appendChild(cellElement);
+      });
+    }
+
+    function handleClick(e) {
+      const index = e.target.dataset.index;
+      if (cells[index] !== "" || !gameActive) return;
+
+      cells[index] = currentPlayer;
+      e.target.textContent = currentPlayer;
+      e.target.classList.add(currentPlayer); // Only X or O class
+
+      if (checkWinner()) {
+        showWinner(`🔥 Player ${currentPlayer} Wins! 🔥`);
+        return;
+      }
+
+      if (!cells.includes("")) {
+        showWinner("⚔️ It's a Draw! ⚔️");
+        return;
+      }
+
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      statusText.textContent = `Player ${currentPlayer}'s turn`;
+    }
+
+    function checkWinner() {
+      return winPatterns.some(pattern => {
+        return pattern.every(index => cells[index] === currentPlayer);
+      });
+    }
+
+    function showWinner(message) {
+      statusText.textContent = message;
+      gameActive = false;
+      setTimeout(() => {
+        winnerText.textContent = message;
+        winnerMenu.style.display = "flex";
+      }, 500);
+    }
+
+    function restartGame(fullRestart = false) {
+      cells = ["", "", "", "", "", "", "", "", ""];
+      currentPlayer = "X";
+      gameActive = true;
+      statusText.textContent = "Player X's turn";
+
+      createBoard();
+
+      if (fullRestart) {
+        winnerMenu.style.display = "none";
+        gameContainer.style.display = "block";
+      }
+
+      // Music keeps playing; no reset
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
